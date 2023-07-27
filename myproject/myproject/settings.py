@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'task_api',
 ]
 
 MIDDLEWARE = [
@@ -75,8 +77,17 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DATABASE_NAME'),
+        'HOST': config('DATABASE_HOST'),
+        'USER': config('DATABASE_USER'),
+        'PASSWORD':config('DATABASE_PASSWORD'),
+        'CONN_MAX_AGE':config('CONN_MAX_AGE',cast=int),
+        'PORT': config('DATABASE_PORT'),
+        'TIME_ZONE' :'Asia/Kolkata',
+        'OPTIONS': {
+           'init_command': 'SET default_storage_engine=INNODB',
+        }
     }
 }
 
@@ -123,3 +134,17 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERY_RESULT_BACKEND = 'db+sqlite:///results.db'
+
+# CELERY_BROKEN_URL = 'amqp://myuser:mypassword@localhost:5672/myvhost'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+CELERY_TIMEZONE = 'UTC'
+
+

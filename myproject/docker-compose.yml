@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.1:8000
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+      - celery
+    environment:
+      - DJANGO_SETTINGS_MODULE = myproject.settings
+
+
+  celery:
+    build: .
+    command: celery -A myproject worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - rabbitmq
+    environment:
+      - DJANGO_SETTINGS_MODULE = myproject.settings
+
+  # redis: 
+  #   image: redis:6.0
+  #   container_name: my_redis
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    
+    
+
+  db:
+    image: mysql:5.7
+    restart: always
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: shivam@123  
+      MYSQL_DATABASE: task          
+      MYSQL_USER: root                  
+      MYSQL_PASSWORD: shivam@123          
+    ports:
+      - 3307:3306                      
+    volumes:
+      - mysql_data:/var/lib/mysql         
+
+volumes:
+  mysql_data:
